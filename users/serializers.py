@@ -7,41 +7,72 @@ from .models import Profile
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-
+    first_name = serializers.CharField(
+        required=True,
+        error_messages={
+            'blank': 'First name is required.',
+            'null': 'First name cannot be null.',
+            'invalid': 'Invalid first name.',
+        }
+    )
+    last_name = serializers.CharField(
+        required=True,
+        error_messages={
+            'blank': 'Last name is required.',
+            'null': 'Last name cannot be null.',
+            'invalid': 'Invalid last name.',
+        }
+    )
+    username = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(
+            queryset=User.objects.all(), message="This username is already used.")],
+        error_messages={
+            'blank': 'Username is required.',
+            'null': 'Username cannot be null.',
+            'invalid': 'Invalid username.',
+        }
+    )
     email = serializers.EmailField(
         required=True,
         validators=[
-            UniqueValidator(queryset=User.objects.all())
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message='This email is already used.',
+            )
         ],
-    )
-
-    password = serializers.CharField(
-        write_only=True,  # GET methods can not return the password
-        required=True,
-        validators=[
-            validate_password
-        ],
-        style={
-            'input_type': 'password',
+        error_messages={
+            'blank': 'Email is required.',
+            'null': 'Email cannot be null.',
+            'invalid': 'Invalid email address.',
         }
     )
-
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password],
+        style={'input_type': 'password'},
+        error_messages={
+            'required': 'Password is required',
+            'blank': 'Password is required.',
+            'null': 'Password cannot be null.',
+        }
+    )
     password2 = serializers.CharField(
         write_only=True,
         required=True,
-        style={
-            'input_type': 'password',
+        style={'input_type': 'password'},
+        error_messages={
+            'required': 'Password is required',
+            'blank': 'Password is required.',
+            'null': 'Password cannot be null.',
         }
     )
 
     class Meta:
         model = User
-        fields = (
-            'username',
-            'email',
-            'password',
-            'password2',
-        )
+        fields = ('username', 'first_name', 'last_name',
+                  'email', 'password', 'password2')
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -49,12 +80,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
+        Profile.objects.create(user=user)
         return user
 
     def validate(self, data):
-        if data.get('password') != data.get('password2'):
-            data = {
-                "password": "Password fields does not match!!!"
-            }
-            raise serializers.ValidationError(data)
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError(
+                {"password": "Password fields did not match."})
         return data
