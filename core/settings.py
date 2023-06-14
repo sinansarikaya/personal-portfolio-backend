@@ -138,29 +138,58 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',
+#     ]
+# }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ]
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    'DEFAULT_CSRF_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
 }
+
 REST_AUTH = {
-    'TOKEN_SERIALIZER': 'path.to.custom.TokenSerializer',
-    # 'TOKEN_SERIALIZER': 'users.serializers.CustomTokenSerializer',
+    'TOKEN_SERIALIZER': 'users.serializers.CustomTokenSerializer',
 }
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'blog_jwt'
 
 
 # corsheaders
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://localhost:8000",
     "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
     "https://www.sinansarikaya.com",
     "http://sarikaya.pythonanywhere.com"
 ]
-
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_NAME = 'sessionid'
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # SECURE_SSL_REDIRECT = True  # This will redirect HTTP requests to HTTPS
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CORS_ALLOW_HEADERS = [
+    "refresh",
+    "x-csrftoken",
+    "content-type",
+    "authorization",
+]
 
 CORS_ALLOW_METHODS = [
     "DELETE",
