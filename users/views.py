@@ -66,6 +66,7 @@ def me(request):
     data = {
         'username': user.username,
         'email': user.email,
+        'is_staff': user.is_staff,
         # add other fields as needed
     }
     return Response(data, status=status.HTTP_200_OK)
