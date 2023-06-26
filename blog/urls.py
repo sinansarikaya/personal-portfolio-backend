@@ -1,19 +1,17 @@
 from django.urls import path
 from .views import (
-    BlogListView, BlogListCreate, BlogRetrieveUpdateDestroy,
-    CategoryListView, CategoryListCreate, CategoryRetrieveUpdateDestroy
+    BlogListView, BlogAdminOps, BlogCreate, BlogDetail,
+    CategoryListView, CategoryAdminOps, CategoryCreate, CategoryDetail
 )
 
 urlpatterns = [
-    path('categorylist/', CategoryListView.as_view(), name='category_list'),
-    path('categories/', CategoryListCreate.as_view(), name='category_list_create'),
-    path('categories/<int:pk>/', CategoryRetrieveUpdateDestroy.as_view(), name='category_retrieve_update_destroy'),
-    path('categories/update/<int:pk>/', CategoryRetrieveUpdateDestroy.as_view(), name='category_update'),
+    path('categories/', CategoryListView.as_view(), name='category_list'), 
+    path('category/<int:pk>/', CategoryDetail.as_view(), name='category_detail'),
+    path('category/create/', CategoryCreate.as_view(), name='category_create'),
+    path('category/update/<int:pk>/', CategoryAdminOps.as_view(), name='category_admin_ops'),
 
-    path('bloglist/', BlogListView.as_view(), name='blog_list'),
-    path('blogs/', BlogListCreate.as_view(), name='blog_list_create'),
-    path('blogs<int:pk>/', BlogRetrieveUpdateDestroy.as_view(), name='blog_retrieve_update_destroy'),
-    path('blogs/update/<int:pk>/', BlogRetrieveUpdateDestroy.as_view(), name='blog_update'),
+    path('blogs/', BlogListView.as_view(), name='blog_list'),
+    path('blog/<int:pk>/', BlogDetail.as_view(), name='blog_detail'),
+    path('blog/create/', BlogCreate.as_view(), name='blog_create'),
+    path('blog/update/<int:pk>/', BlogAdminOps.as_view(), name='blog_admin_ops'),
 ]
-
-

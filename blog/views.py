@@ -1,29 +1,43 @@
-from rest_framework import generics
+from rest_framework import generics, permissions
 from .models import Blog, Category
 from .serializers import BlogSerializer, CategorySerializer
 
 class CategoryListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
-class CategoryListCreate(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-class CategoryRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
 
 class BlogListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
 
-class BlogListCreate(generics.ListCreateAPIView):
+class BlogDetail(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
 
-class BlogRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class CategoryDetail(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class BlogAdminOps(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAdminUser]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
 
+class BlogCreate(generics.CreateAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+
+class CategoryAdminOps(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryCreate(generics.CreateAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer

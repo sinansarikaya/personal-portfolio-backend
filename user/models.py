@@ -13,7 +13,9 @@ class UserManager(BaseUserManager):
             raise ValueError("Email is required")
 
         user = self.model(
-            email=self.normalize_email(email)
+            email=self.normalize_email(email),
+            first_name=kwargs.get('first_name', ''),
+            last_name=kwargs.get('last_name', '')
         )
 
         user.set_password(password)
@@ -39,8 +41,8 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(null=False, blank=False, unique=True)
-    first_name = models.CharField(max_length=50, blank=False, null=False, default='Default first name')
-    last_name = models.CharField(max_length=50, blank=False, null=False, default='Default last name')
+    first_name = models.CharField(max_length=50, blank=False)
+    last_name = models.CharField(max_length=50, blank=False,)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
