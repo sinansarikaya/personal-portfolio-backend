@@ -16,13 +16,19 @@ class BlogDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
+    lookup_field = 'slug'
 
 class CategoryDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-class BlogAdminOps(generics.RetrieveUpdateDestroyAPIView):
+class BlogUpdate(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+
+class BlogDelete(generics.DestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
