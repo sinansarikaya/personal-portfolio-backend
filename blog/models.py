@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from .utils import get_random_filename
 from django.utils.text import slugify
+from django.core.files.storage import default_storage
 
 
 class Category(models.Model):
@@ -42,6 +43,10 @@ class Blog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, max_length=255, null=True)  # SEO Url
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_blog_image = self.blog_image
+
     class Meta:
         ordering = ['-pub_date']
 
@@ -62,4 +67,11 @@ class Blog(models.Model):
 
         if self.status == 'published' and not self.pub_date:
             self.pub_date = timezone.now()
+        
+        if self.pk:
+            old_blog = Blog.objects.get(pk=self.pk)
+            if old_blog.blog_image.name != self.blog_image.name:
+                if default_storage.exists(old_blog.blog_image.name):
+                    default_storage.delete(old_blog.blog_image.name)
+
         super().save(*args, **kwargs)
