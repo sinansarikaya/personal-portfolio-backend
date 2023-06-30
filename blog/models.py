@@ -29,23 +29,31 @@ class Blog(models.Model):
         ('sepia', 'Sepia'),
     )
 
-    title = models.CharField(max_length=200)
-    content = models.TextField()
+    title_en = models.CharField(max_length=200, default="")
+    title_tr = models.CharField(max_length=200, default="")
+    title_no = models.CharField(max_length=200, default="")
+    
+    content_en = models.TextField(default="")
+    content_tr = models.TextField(default="")
+    content_no = models.TextField(default="")
+    
+    tags_en = models.CharField(max_length=200, default="")
+    tags_tr = models.CharField(max_length=200, default="")
+    tags_no = models.CharField(max_length=200, default="")
+
+    slug_en = models.SlugField(unique=True, blank=True)
+    slug_tr = models.SlugField(unique=True, blank=True)
+    slug_no = models.SlugField(unique=True, blank=True)
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     blog_image = models.ImageField(upload_to=get_random_filename)
     image_filter = models.CharField(
         max_length=255, choices=FILTER_CHOICES, default='none', null=True)
     status = models.CharField(max_length=255, choices=[(
         'draft', 'Draft'), ('published', 'Published')], default='draft')
-    tags = models.CharField(max_length=255, null=True)
     pub_date = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    slug = models.SlugField(unique=True, max_length=255, null=True)  # SEO Url
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._original_blog_image = self.blog_image
 
     class Meta:
         ordering = ['-pub_date']
@@ -54,16 +62,14 @@ class Blog(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-
-        unique_slug = self.slug
-        counter = 1
-        while Blog.objects.filter(slug=unique_slug).exclude(id=self.id).exists():
-            unique_slug = f"{self.slug}-{counter}"
-            counter += 1
-
-        self.slug = unique_slug
+        if not self.id:
+            self.slug_en = slugify(self.title_en)
+            self.slug_tr = slugify(self.title_tr)
+            self.slug_no = slugify(self.title_no)
+        else:
+            self.slug_en = self.get_unique_slug('slug_en', self.title_en)
+            self.slug_tr = self.get_unique_slug('slug_tr', self.title_tr)
+            self.slug_no = self.get_unique_slug('slug_no', self.title_no)
 
         if self.status == 'published' and not self.pub_date:
             self.pub_date = timezone.now()
@@ -75,3 +81,11 @@ class Blog(models.Model):
                     default_storage.delete(old_blog.blog_image.name)
 
         super().save(*args, **kwargs)
+
+    def get_unique_slug(self, slug_field, title):
+        unique_slug = slugify(title)
+        counter = 1
+        while Blog.objects.filter(**{slug_field: unique_slug}).exclude(id=self.id).exists():
+            unique_slug = f"{slugify(title)}-{counter}"
+            counter += 1
+        return unique_slug

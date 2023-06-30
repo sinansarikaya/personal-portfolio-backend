@@ -12,11 +12,19 @@ class BlogListView(generics.ListAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
 
-class BlogDetail(generics.RetrieveAPIView):
+class FixBlogDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
-    lookup_field = 'slug'
+
+class BlogDetailEn(FixBlogDetail):
+    lookup_field = 'slug_en'
+
+class BlogDetailTr(FixBlogDetail):
+    lookup_field = 'slug_tr'
+
+class BlogDetailNo(FixBlogDetail):
+    lookup_field = 'slug_no'
 
 class CategoryDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
