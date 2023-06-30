@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sarikaya.pythonanywhere.com']
 
 
 # Application definition
@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Modules
     'corsheaders',
     'rest_framework',
@@ -135,13 +135,18 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://sinansarikaya.com",
+    "https://www.sinansarikaya.com"
 ]
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTP_ONLY = True
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://sinansarikaya.com",
+    "https://www.sinansarikaya.com"
 ]
 CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 SESSION_COOKIE_SECURE = True
@@ -185,9 +190,9 @@ SIMPLE_JWT = {
     # Cookie name. Enables cookies if value is set.
     'AUTH_COOKIE_REFRESH': 'refresh',
     # A string like "example.com", or None for standard domain cookie.
-    'AUTH_COOKIE_DOMAIN': None,
+    'AUTH_COOKIE_DOMAIN': "sinansarikaya.com",
     # Whether the auth cookies should be secure (https:// only).
-    'AUTH_COOKIE_SECURE': True, 
+    'AUTH_COOKIE_SECURE': True,
     # Http only cookie flag.It's not fetch by javascript.
     'AUTH_COOKIE_HTTP_ONLY': True,
     'AUTH_COOKIE_PATH': '/',        # The path of the auth cookie.
