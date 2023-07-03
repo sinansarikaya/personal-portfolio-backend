@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 from .utils import get_random_filename
 from django.utils.text import slugify
 from django.core.files.storage import default_storage
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -29,17 +29,17 @@ class Blog(models.Model):
         ('sepia', 'Sepia'),
     )
 
-    title_en = models.CharField(max_length=200, default="")
-    title_tr = models.CharField(max_length=200, default="")
-    title_no = models.CharField(max_length=200, default="")
+    title_en = models.CharField(max_length=200)
+    title_tr = models.CharField(max_length=200)
+    title_no = models.CharField(max_length=200)
     
-    content_en = models.TextField(default="")
-    content_tr = models.TextField(default="")
-    content_no = models.TextField(default="")
+    content_en = models.TextField()
+    content_tr = models.TextField()
+    content_no = models.TextField()
     
-    tags_en = models.CharField(max_length=200, default="")
-    tags_tr = models.CharField(max_length=200, default="")
-    tags_no = models.CharField(max_length=200, default="")
+    tags_en = models.CharField(max_length=200)
+    tags_tr = models.CharField(max_length=200)
+    tags_no = models.CharField(max_length=200)
 
     slug_en = models.SlugField(unique=True, blank=True)
     slug_tr = models.SlugField(unique=True, blank=True)
@@ -59,7 +59,7 @@ class Blog(models.Model):
         ordering = ['-pub_date']
 
     def __str__(self):
-        return self.title
+        return self.title_en
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -89,3 +89,16 @@ class Blog(models.Model):
             unique_slug = f"{slugify(title)}-{counter}"
             counter += 1
         return unique_slug
+    
+
+class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    visible = models.BooleanField(default=False) 
+
+    def __str__(self):
+        return self.text[:50]
+

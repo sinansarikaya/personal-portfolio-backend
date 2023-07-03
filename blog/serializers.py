@@ -1,5 +1,16 @@
 from rest_framework import serializers
-from .models import Blog, Category
+from django.contrib.auth import get_user_model
+from .models import Blog, Category, Comment
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['email']
+
+class BlogTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = ['title_en']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,3 +31,14 @@ class BlogSerializer(serializers.ModelSerializer):
         category_id = validated_data.pop('category_id')
         category = Category.objects.get(id=category_id)
         return Blog.objects.create(category=category, **validated_data)
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    blog = BlogTitleSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'blog', 'text', 'created_at', 'updated_at', 'visible'] 
+
+
