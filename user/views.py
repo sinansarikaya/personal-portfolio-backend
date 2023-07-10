@@ -8,6 +8,9 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
 
 def get_user_tokens(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -132,9 +135,16 @@ def user(request):
     serializer = serializers.UserSerializer(user)
     return response.Response(serializer.data)
 
-class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.AllowAny] #TODO: Change here
+class UserListCreateView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAdminUser]
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
+
+
+class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+
 
 
