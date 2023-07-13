@@ -4,13 +4,9 @@ from django.middleware import csrf
 from rest_framework import exceptions as rest_exceptions, response, decorators as rest_decorators, permissions as rest_permissions
 from rest_framework_simplejwt import tokens, views as jwt_views, serializers as jwt_serializers, exceptions as jwt_exceptions
 from user import serializers, models
-from rest_framework import viewsets
 from rest_framework import permissions
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.password_validation import validate_password
 from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework import status
+from django.contrib.auth.models import Group
 
 def get_user_tokens(user):
     refresh = tokens.RefreshToken.for_user(user)
@@ -136,15 +132,20 @@ def user(request):
     return response.Response(serializer.data)
 
 class UserListCreateView(generics.ListCreateAPIView):
+    # permission_classes = [permissions.AllowAny]
     permission_classes = [permissions.IsAdminUser]
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
-
 
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [permissions.AllowAny]
     permission_classes = [permissions.IsAdminUser]
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
 
-
+class GroupListAPIView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.IsAdminUser]
+    queryset = Group.objects.all()
+    serializer_class = serializers.GroupSerializer
 

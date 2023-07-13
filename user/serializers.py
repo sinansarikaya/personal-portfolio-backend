@@ -1,10 +1,8 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.hashers import make_password 
-
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -62,14 +60,39 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
+    password = serializers.CharField(
+        write_only=True, required=False, validators=[validate_password])
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = '__all__'
+        exclude = ['is_superuser']
         read_only_fields = ('created_at', 'updated_at', 'last_login')
 
+    def get_groups(self, obj):
+        groups = obj.groups.all()
+        return GroupSerializer(groups, many=True).data
+
+    def create(self, validated_data):
+        groups = validated_data.pop('groups', [])
+        password = validated_data.pop('password', None)
+        user = super().create(validated_data)
+        if password is not None:
+            user.set_password(password)
+        for group in groups:
+            user.groups.add(group)
+        user.save()
+        return user
+
     def update(self, instance, validated_data):
+        groups = validated_data.pop('groups', None)
+
+        if groups is not None:
+            instance.groups.clear()
+            for group_data in groups:
+                group = Group.objects.filter(id=group_data['id']).first()
+                if group is not None:
+                    instance.groups.add(group)
 
         password = validated_data.pop('password', None)
 
@@ -82,3 +105,9 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
